@@ -1,67 +1,87 @@
 import pygame
 import sys
 import os
-from config import *
+from game.config import Config
 
 # 初始化 Pygame
 pygame.init()
 
-# 設定屏幕大小
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption(SCREEN_TITLE)
+class Warrior(pygame.sprite.Sprite):
+    def __init__(self, warrior_name):
+        super().__init__()
+        self.image = pygame.image.load(os.path.join(Config.IMAGE_PATH, warrior_name)).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.center = (Config.SCREEN_WIDTH // 4, Config.SCREEN_HEIGHT // 2)  # 从屏幕中间左侧开始
+        self.speed = 5
 
-# 加載圖像並檢查路徑
-def load_image(file_name):
-    file_path = os.path.join(IMAGE_PATH, file_name)
-    if not os.path.exists(file_path):
-        print(f"Error: The file {file_path} does not exist.")
-        sys.exit()
-    return pygame.image.load(file_path)
+    def update(self):
+        self.rect.x += self.speed
+        if self.rect.left > Config.SCREEN_WIDTH:  # 如果战士移出屏幕右侧，重新从左侧开始
+            self.rect.right = 0
 
-background_image = load_image('test-background.png')
-player_image = load_image('test-player.png')
-player_width = 300  # 調整為適當的大小
-player_height = 300  # 調整為適當的大小
-player_image = pygame.transform.scale(player_image, (player_width, player_height))
+class Game:
+    def __init__(self):
+        self.screen = pygame.display.set_mode((Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT))
+        pygame.display.set_caption(Config.SCREEN_TITLE)
+        self.clock = pygame.time.Clock()
+        self.running = True
+        self.game_started = False
+        self.current_warrior = None
+        self.warriors = {}
+        self.load_warriors()
+        self.button_image = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'button.png')).convert_alpha()
+        self.button_rect = self.button_image.get_rect(center=(Config.SCREEN_WIDTH // 2, Config.SCREEN_HEIGHT // 2))
+        self.game_font = pygame.font.Font(os.path.join(Config.FONT_PATH, 'Mamelon.otf'), 36)
 
-# 玩家位置和速度
-player_x = 50
-player_y = SCREEN_HEIGHT // 2
-player_speed = 5
-player_direction = 'right'
+    def load_warriors(self):
+        for i in range(1, 3):
+            warrior_name = f"warrior_{i}.png"
+            self.warriors[i] = Warrior(warrior_name)
 
-# 主遊戲循環
-clock = pygame.time.Clock()
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False
+                elif pygame.K_1 <= event.key <= pygame.K_9:
+                    warrior_index = event.key - pygame.K_1 + 1
+                    if warrior_index in self.warriors:
+                        self.current_warrior = self.warriors[warrior_index]
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.button_rect.collidepoint(event.pos):
+                    self.game_started = True
+    def start_screen(self):
+        while not self.game_started:
+            self.handle_events()
+            self.screen.blit(pygame.image.load(os.path.join(Config.IMAGE_PATH, 'test-background.png')).convert(), (0, 0))
+            if not self.game_started:
+                self.screen.blit(self.button_image, self.button_rect)
+            text_surface = self.game_font.render("測試", True, Config.WHITE)
+            text_rect = text_surface.get_rect(midtop=(Config.SCREEN_WIDTH // 2, 50))
+            self.screen.blit(text_surface, text_rect)
+            pygame.display.flip()
+            self.clock.tick(Config.FPS)
 
-    # 處理玩家輸入
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and player_y > 0:
-        player_y -= player_speed
-    if keys[pygame.K_DOWN] and player_y < SCREEN_HEIGHT - player_image.get_height():
-        player_y += player_speed
-    if keys[pygame.K_LEFT] and player_x > 0:
-        player_x -= player_speed
-        player_direction = 'left'
-    if keys[pygame.K_RIGHT] and player_x < SCREEN_WIDTH - player_image.get_width():
-        player_x += player_speed
-        player_direction = 'right'
+    def game_loop(self):
+        while self.running:
+            self.handle_events()
+            self.screen.fill(Config.BLACK)
+            if self.current_warrior:
+                self.current_warrior.update()
+                self.screen.blit(pygame.image.load(os.path.join(Config.IMAGE_PATH, 'test-background.png')).convert(), (0, 0))
+                self.screen.blit(self.current_warrior.image, self.current_warrior.rect)
+            pygame.display.flip()
+            self.clock.tick(Config.FPS)
 
-    # 繪製背景
-    screen.blit(background_image, (0, 0))
-    
-    # 繪製玩家
-    screen.blit(player_image, (player_x, player_y))
+    def run(self):
+        self.start_screen()
+        self.game_loop()
 
-    # 更新屏幕
-    pygame.display.flip()
-
-    # 控制遊戲速度
-    clock.tick(FPS)
+if __name__ == "__main__":
+    game = Game()
+    game.run()
 
 # 退出 Pygame
 pygame.quit()
