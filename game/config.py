@@ -1,10 +1,12 @@
-# config.py
 
 class Config:
     #window setting
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 720
-    SCREEN_TITLE = "Tower Defense Game"
+    SCREEN_TITLE = "Smash Duel"
+
+    CASTLE_SIZE = 320
+    WARRIOR_SIZE = 200
 
     # colors setting (R, G, B)
     WHITE = (255, 255, 255)

@@ -1,23 +1,25 @@
 import pygame
-import sys
 import os
 from config import Config
+import sys
+sys.path.append('/home/obi/oop-final-game/assets')
 
 class MainInterface(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'start_backgrond.png'))
+        self.image = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'start_background.png'))
+        self.image = pygame.transform.scale(self.image,(Config.SCREEN_WIDTH,Config.SCREEN_HEIGHT))
         self.rect = self.image.get_rect()
-        self.rect.center = Config.SCREEN_HEIGHT // 2, Config.SCREEN_WIDTH // 2
+        self.rect.center = 640, 360
 
     def update(self):
         pass
 
 class PlayButton(pygame.sprite.Sprite):
-    def __init__(self, x = Config.SCREEN_WIDTH // 2, y = 400):
+    def __init__(self, x = 850, y = 480):
         pygame.sprite.Sprite.__init__(self)
-        self.image_1 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'play_button_1.png'))
-        self.image_2 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'play_button_2.png'))
+        self.image_1 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'play_button1.png'))
+        self.image_2 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'play_button2.png'))
         self.image = self.image_1
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -40,8 +42,8 @@ class StartInterface():
         clock = pygame.time.Clock()
         while True:
             clock.tick(60)
-            self.components.update()
-            self.components.draw(screen)
+            self.componets.update()
+            self.componets.draw(screen)
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type== pygame.QUIT:

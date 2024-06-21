@@ -6,9 +6,10 @@ from config import Config
 class MainInterface(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'end_backgrond.png'))
+        self.image = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'background.png'))
+        self.image = pygame.transform.scale(self.image,(Config.SCREEN_WIDTH,Config.SCREEN_HEIGHT))
         self.rect = self.image.get_rect()
-        self.rect.center = Config.SCREEN_HEIGHT // 2, Config.SCREEN_WIDTH // 2
+        self.rect.center = 640, 360
 
     def update(self):
         pass
@@ -16,8 +17,8 @@ class MainInterface(pygame.sprite.Sprite):
 class ContinueButton(pygame.sprite.Sprite):
     def __init__(self, x = Config.SCREEN_WIDTH // 2, y = 400):
         pygame.sprite.Sprite.__init__(self)
-        self.image_1 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'continue_button_1.png'))
-        self.image_2 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'continue_button_2.png'))
+        self.image_1 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'resume_button1.png'))
+        self.image_2 = pygame.image.load(os.path.join(Config.IMAGE_PATH, 'resume_button2.png'))
         self.image = self.image_1
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -44,13 +45,13 @@ class EndInterface():
         while True:
             count += 1
             clock.tick(60)
-            self.components.clear(screen, background)
-            self.components.update()
+            self.componets.clear(screen, background)
+            self.componets.update()
             if count % 10 == 0:
                 count =0
                 flag = not flag
             if flag:
-                self.components.draw(screen)
+                self.componets.draw(screen)
             else:
                 screen.blit(self.main_interface.image, self.main_interface.rect)
             pygame.display.flip()
